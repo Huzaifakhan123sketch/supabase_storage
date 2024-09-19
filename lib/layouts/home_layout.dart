@@ -3,6 +3,7 @@ import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_storage/controllers/admin_home_controller.dart';
+import 'package:supabase_storage/image_screen.dart';
 import 'package:supabase_storage/layouts/add_to_cart_layout.dart';
 
 import '../admin_app/screens/admin_screen.dart';
@@ -42,27 +43,28 @@ class HomeLayout extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: Get.width * .8,
-                        child: Card(
-                          elevation: 2,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.zero,
-                              prefixIcon: Icon(Icons.search),
-                              hintText: "Search",
-                              hintStyle: TextStyle(
-                                color: Color(0xff000000).withOpacity(.4),
-                              ),
-                              filled: true,
-                              fillColor: Color(0xffF1EFEF),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                      Expanded(
+                        child: Container(
+                          child: Card(
+                            elevation: 2,
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.zero,
+                                prefixIcon: Icon(Icons.search),
+                                hintText: "Search",
+                                hintStyle: TextStyle(
+                                  color: Color(0xff000000).withOpacity(.4),
+                                ),
+                                filled: true,
+                                fillColor: Color(0xffF1EFEF),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
                               ),
                             ),
                           ),
@@ -70,7 +72,7 @@ class HomeLayout extends StatelessWidget {
                       ),
                       IconButton(
                           onPressed: () {
-                            Get.to(() => AdminScreen());
+                            Get.to(() => ImagesScreen());
                           },
                           icon: Icon(Icons.person)),
                     ],

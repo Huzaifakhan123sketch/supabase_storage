@@ -66,11 +66,15 @@
 //   }
 // }
 
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_storage/utils/supabase_client.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:supabase_storage/downloads_screen.dart';
 
 import 'image_controller.dart';
 
@@ -82,33 +86,74 @@ class ImagesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Supabase Image Upload/Download'),
+        actions: [IconButton(onPressed: () {
+          Get.to(() => DownloadsScreen());
+        }, icon: Icon(Icons.download))],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Obx(() {
-              if (controller.image.value != null) {
-                return Image.file(
-                  File(controller.image.value.toString()),
+      body: RefreshIndicator(
+        onRefresh: () => controller.fetchAllImages("test"),
+        child: Obx(
+          () {
+            return ListView.builder(
+              itemBuilder: (_, index) {
+                var item = controller.allFiles[index];
+                return ListTile(
+                  title: Text(item.name),
+                  leading: item.metadata != null ? Text("${NumberFormat("#.##").format((item.metadata!['size'] as num)/1024)} kb") : null,
+                  trailing: IconButton(
+                    onPressed: () async {
+                      var dir = await getTemporaryDirectory();
+                      controller.downloadFile(dir, item, "test").then((_) {
+                        log("File downloaded successfully");
+                      });
+                    },
+                    icon: Icon(Icons.download),
+                  ),
                 );
-              } else {
-                return Text('No image uploaded');
-              }
-            }),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => controller.uploadImage(),
-              child: Text('Upload Image'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await supabase.storage.from('images').download("");
               },
-              child: Text('Download Image'),
-            ),
-          ],
+              itemCount: controller.allFiles.length,
+              physics: AlwaysScrollableScrollPhysics(),
+            );
+          },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          var image = await ImagePicker().pickImage(source: ImageSource.gallery);
+          if (image != null) {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text("Picked file"),
+                content: Image.file(
+                  File(image.path),
+                  height: 150,
+                  width: 150,
+                  fit: BoxFit.cover,
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Dismiss"),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      await controller.uploadFileToBucket(
+                        "test",
+                        File(image.path),
+                      );
+                      Navigator.pop(context);
+                    },
+                    child: Text("Upload"),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+        child: Icon(Icons.add_a_photo),
       ),
     );
   }
